@@ -3,8 +3,6 @@ import { StyleSheet, View, Text, ScrollView, Dimensions } from "react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-console.log(SCREEN_WIDTH);
-
 export default function App() {
   return (
     <View style={style.container}>
