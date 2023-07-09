@@ -14,6 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Fontisto } from "@expo/vector-icons";
 
 const STORAGE_KEY = "@toDos";
+const STATUS_KEY = "@status";
 
 export default function App() {
   const [working, setWorking] = useState(true);
@@ -23,11 +24,13 @@ export default function App() {
   const travel = () => setWorking(false);
   const work = () => setWorking(true);
   const onChangeText = (payload) => setText(payload);
+
   const saveToDos = async (toSave) => {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   };
   const loadToDos = async () => {
     const s = await AsyncStorage.getItem(STORAGE_KEY);
+    console.log(JSON.parse(s));
     s && setToDos(JSON.parse(s));
   };
 
@@ -38,7 +41,6 @@ export default function App() {
     await saveToDos(newToDos);
     setText("");
   };
-
   const deleteToDo = (key) => {
     Alert.alert("Delete To Do", "Are you sure?", [
       { text: "Cancel" },
@@ -55,9 +57,26 @@ export default function App() {
     ]);
   };
 
+  const setStatus = async () => {
+    const s = await AsyncStorage.getItem(STATUS_KEY);
+    setWorking(s == "true");
+  };
+  const saveStatus = async () => {
+    try {
+      await AsyncStorage.setItem(STATUS_KEY, String(working));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
     loadToDos();
+    setStatus();
   }, []);
+
+  useEffect(() => {
+    saveStatus();
+  }, [working]);
 
   return (
     <View style={styles.container}>
