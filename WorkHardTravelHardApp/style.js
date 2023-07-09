@@ -40,6 +40,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
+  toDosLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
 });
 
 export default styles;

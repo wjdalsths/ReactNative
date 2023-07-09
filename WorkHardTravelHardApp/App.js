@@ -10,7 +10,7 @@ import {
 import { theme } from "./color";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Fontisto } from "@expo/vector-icons";
+import { Fontisto, MaterialIcons } from "@expo/vector-icons";
 import styles from "./style";
 
 const STORAGE_KEY = "@toDos";
@@ -30,13 +30,15 @@ export default function App() {
   };
   const loadToDos = async () => {
     const s = await AsyncStorage.getItem(STORAGE_KEY);
-    console.log(JSON.parse(s));
     s && setToDos(JSON.parse(s));
   };
 
   const addTodo = async () => {
     if (text == "") return;
-    const newToDos = { ...toDos, [Date.now()]: { text, working } };
+    const newToDos = {
+      ...toDos,
+      [Date.now()]: { text, working, check: false },
+    };
     setToDos(newToDos);
     await saveToDos(newToDos);
     setText("");
@@ -55,6 +57,19 @@ export default function App() {
         },
       },
     ]);
+  };
+  const onCheckToDos = async (key, state) => {
+    const value = Object.values(state)[0];
+    const status = Object.keys(state)[0];
+    const newToDos = {
+      ...toDos,
+      [key]: {
+        ...toDos[key],
+        [status]: value,
+      },
+    };
+    setToDos(newToDos);
+    await saveToDos(newToDos);
   };
 
   const setStatus = async () => {
@@ -114,7 +129,27 @@ export default function App() {
         {Object.keys(toDos).map((key) =>
           toDos[key].working === working ? (
             <View style={styles.toDos} key={key}>
-              <Text style={styles.toDoText}>{toDos[key].text}</Text>
+              <View style={styles.toDosLeft}>
+                <MaterialIcons
+                  name={
+                    toDos[key].check ? "check-box" : "check-box-outline-blank"
+                  }
+                  size={24}
+                  color="white"
+                  onPress={() =>
+                    onCheckToDos(key, { check: !toDos[key].check })
+                  }
+                />
+                <Text
+                  style={{
+                    ...styles.toDoText,
+                    color: toDos[key].check ? theme.toDoBg : "#fff",
+                    textDecorationLine: toDos[key].check && "line-through",
+                  }}
+                >
+                  {toDos[key].text}
+                </Text>
+              </View>
               <TouchableOpacity onPress={() => deleteToDo(key)}>
                 <Fontisto name="trash" size={18} color={theme.bg} />
               </TouchableOpacity>
