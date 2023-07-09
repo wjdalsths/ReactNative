@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 import {
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -12,6 +11,7 @@ import { theme } from "./color";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Fontisto } from "@expo/vector-icons";
+import styles from "./style";
 
 const STORAGE_KEY = "@toDos";
 const STATUS_KEY = "@status";
@@ -113,7 +113,7 @@ export default function App() {
       <ScrollView>
         {Object.keys(toDos).map((key) =>
           toDos[key].working === working ? (
-            <View style={styles.toDo} key={key}>
+            <View style={styles.toDos} key={key}>
               <Text style={styles.toDoText}>{toDos[key].text}</Text>
               <TouchableOpacity onPress={() => deleteToDo(key)}>
                 <Fontisto name="trash" size={18} color={theme.bg} />
@@ -125,44 +125,3 @@ export default function App() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.bg,
-    paddingHorizontal: 20,
-  },
-  header: {
-    justifyContent: "space-between",
-    flexDirection: "row",
-    marginTop: 100,
-  },
-  btnText: {
-    fontSize: 38,
-    fontWeight: "600",
-    color: "white",
-  },
-  input: {
-    backgroundColor: "white",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    marginVertical: 20,
-    fontSize: 18,
-  },
-  toDo: {
-    backgroundColor: theme.grey,
-    marginBottom: 10,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    borderRadius: 15,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  toDoText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-});
