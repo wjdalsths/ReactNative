@@ -10,7 +10,7 @@ import {
 import { theme } from "./color";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Fontisto, MaterialIcons } from "@expo/vector-icons";
+import { Fontisto, MaterialIcons, Feather } from "@expo/vector-icons";
 import styles from "./style";
 
 const STORAGE_KEY = "@toDos";
@@ -20,6 +20,7 @@ export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState("");
   const [toDos, setToDos] = useState({});
+  const [editText, setEditText] = useState("");
 
   const travel = () => setWorking(false);
   const work = () => setWorking(true);
@@ -37,7 +38,7 @@ export default function App() {
     if (text == "") return;
     const newToDos = {
       ...toDos,
-      [Date.now()]: { text, working, check: false },
+      [Date.now()]: { text, working, check: false, edit: false },
     };
     setToDos(newToDos);
     await saveToDos(newToDos);
@@ -66,6 +67,20 @@ export default function App() {
       [key]: {
         ...toDos[key],
         [status]: value,
+      },
+    };
+    setToDos(newToDos);
+    await saveToDos(newToDos);
+
+    status === "edit" && setEditText(toDos[key].text);
+  };
+  const editToDos = async (key) => {
+    const newToDos = {
+      ...toDos,
+      [key]: {
+        ...toDos[key],
+        text: editText,
+        edit: false,
       },
     };
     setToDos(newToDos);
@@ -129,30 +144,54 @@ export default function App() {
         {Object.keys(toDos).map((key) =>
           toDos[key].working === working ? (
             <View style={styles.toDos} key={key}>
-              <View style={styles.toDosLeft}>
-                <MaterialIcons
-                  name={
-                    toDos[key].check ? "check-box" : "check-box-outline-blank"
-                  }
-                  size={24}
-                  color="white"
-                  onPress={() =>
-                    onCheckToDos(key, { check: !toDos[key].check })
-                  }
-                />
-                <Text
+              {toDos[key].edit ? (
+                <TextInput
+                  value={editText}
+                  returnKeyType="done"
+                  onSubmitEditing={() => editToDos(key)}
+                  onChangeText={(payload) => setEditText(payload)}
                   style={{
                     ...styles.toDoText,
-                    color: toDos[key].check ? theme.toDoBg : "#fff",
-                    textDecorationLine: toDos[key].check && "line-through",
+                    backgroundColor: "#fff",
+                    paddingVertical: 5,
+                    paddingHorizontal: 10,
+                    borderRadius: 10,
+                    color: "#000",
                   }}
+                />
+              ) : (
+                <View style={styles.toDosLeft}>
+                  <MaterialIcons
+                    name={
+                      toDos[key].check ? "check-box" : "check-box-outline-blank"
+                    }
+                    size={24}
+                    color="white"
+                    onPress={() =>
+                      onCheckToDos(key, { check: !toDos[key].check })
+                    }
+                  />
+                  <Text
+                    style={{
+                      ...styles.toDoText,
+                      color: toDos[key].check ? theme.toDoBg : "#fff",
+                      textDecorationLine: toDos[key].check && "line-through",
+                    }}
+                  >
+                    {toDos[key].text}
+                  </Text>
+                </View>
+              )}
+              <View style={styles.toDosLeft}>
+                <TouchableOpacity
+                  onPress={() => onCheckToDos(key, { edit: !toDos[key].edit })}
                 >
-                  {toDos[key].text}
-                </Text>
+                  <Feather name="edit" size={20} color="#aaa" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => deleteToDo(key)}>
+                  <Fontisto name="trash" size={18} color={theme.bg} />
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={() => deleteToDo(key)}>
-                <Fontisto name="trash" size={18} color={theme.bg} />
-              </TouchableOpacity>
             </View>
           ) : null
         )}
